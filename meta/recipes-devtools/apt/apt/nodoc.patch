@@ -1,18 +1,40 @@
-Disable documentation
+From 6a8fab8f0177f4382e2d04004ebbba44a257dbea Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?An=C3=ADbal=20Lim=C3=B3n?= <anibal.limon@linaro.org>
+Date: Fri, 28 Dec 2018 17:38:53 -0600
+Subject: [PATCH] CMakeLists.txt: Disable documentation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
 Upstream-Status: Inappropriate [configuration]
-Signed-off-by: Constantin Musca <constantinx.musca@intel.com>
 
-Index: apt-1.2.24/Makefile
-===================================================================
---- apt-1.2.24.orig/Makefile
-+++ apt-1.2.24/Makefile
-@@ -19,7 +19,7 @@ all headers library clean veryclean bina
- 	$(MAKE) -C cmdline $@
- 	$(MAKE) -C ftparchive $@
- 	$(MAKE) -C dselect $@
--	$(MAKE) -C doc $@
-+#	$(MAKE) -C doc $@
- 	$(MAKE) -C po $@
- 	# FIXME: -C test has issue swith parallel builds, investigate!
- 	-$(MAKE) -C test $@
+Signed-off-by: Aníbal Limón <anibal.limon@linaro.org>
+Signed-off-by: Constantin Musca <constantinx.musca@intel.com>
+---
+ CMakeLists.txt | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 916fdfd9a..3e0b502bf 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -10,7 +10,7 @@ include_directories(${PROJECT_BINARY_DIR}/include)
+ 
+ enable_testing()
+ 
+-option(WITH_DOC "Build documentation." ON)
++option(WITH_DOC "Build documentation." OFF)
+ option(USE_NLS "Localisation support." ON)
+ 
+ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
+@@ -211,7 +211,6 @@ add_subdirectory(apt-private)
+ add_subdirectory(apt-inst)
+ add_subdirectory(cmdline)
+ add_subdirectory(completions)
+-add_subdirectory(doc)
+ add_subdirectory(dselect)
+ add_subdirectory(ftparchive)
+ add_subdirectory(methods)
+-- 
+2.19.2
+

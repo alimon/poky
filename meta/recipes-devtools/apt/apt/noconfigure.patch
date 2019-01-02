@@ -1,17 +1,29 @@
-Upstream-Status: Inappropriate [configuration]
-Signed-off-by: Constantin Musca <constantinx.musca@intel.com>
+From e179ab9254672d0fcedcc922cc8b34ebd2401fc3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?An=C3=ADbal=20Lim=C3=B3n?= <anibal.limon@linaro.org>
+Date: Fri, 28 Dec 2018 17:43:24 -0600
+Subject: [PATCH] apt-pkg/packagemanager.cc: Disable immediate config
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
+Upstream-Status: Inappropriate [configuration]
+
+Signed-off-by: Aníbal Limón <anibal.limon@linaro.org>
+Signed-off-by: Constantin Musca <constantinx.musca@intel.com>
+---
+ apt-pkg/packagemanager.cc | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/apt-pkg/packagemanager.cc b/apt-pkg/packagemanager.cc
-index 249542c..0a1911f 100644
+index a8537431b..66c394017 100644
 --- a/apt-pkg/packagemanager.cc
 +++ b/apt-pkg/packagemanager.cc
-@@ -952,10 +952,12 @@ bool pkgPackageManager::SmartUnPack(PkgIterator Pkg, bool const Immediate, int c
+@@ -1015,10 +1015,12 @@ bool pkgPackageManager::SmartUnPack(PkgIterator Pkg, bool const Immediate, int c
        return false;
  
     if (Immediate == true) {
 +#if 0
-       // Perform immedate configuration of the package. 
+       // Perform immediate configuration of the package. 
           if (SmartConfigure(Pkg, Depth + 1) == false)
              _error->Error(_("Could not perform immediate configuration on '%s'. "
                 "Please see man 5 apt.conf under APT::Immediate-Configure for details. (%d)"),Pkg.FullName().c_str(),2);
@@ -19,7 +31,7 @@ index 249542c..0a1911f 100644
     }
     
     return true;
-@@ -1038,6 +1040,7 @@ pkgPackageManager::OrderResult pkgPackageManager::OrderInstall()
+@@ -1113,6 +1115,7 @@ pkgPackageManager::OrderResult pkgPackageManager::OrderInstall()
        }
     }
  
@@ -27,7 +39,7 @@ index 249542c..0a1911f 100644
     // Final run through the configure phase
     if (ConfigureAll() == false)
        return Failed;
-@@ -1052,6 +1055,7 @@ pkgPackageManager::OrderResult pkgPackageManager::OrderInstall()
+@@ -1127,6 +1130,7 @@ pkgPackageManager::OrderResult pkgPackageManager::OrderInstall()
  	 return Failed;
        }
     }
@@ -35,3 +47,6 @@ index 249542c..0a1911f 100644
  	 
     return Completed;
  }
+-- 
+2.19.2
+

@@ -1,54 +1,35 @@
-Upstream-Status: Inappropriate [configuration]
-From 5d61ac822fd9a3871cd5089389c210606232ecdc Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?An=C3=ADbal=20Lim=C3=B3n?= <anibal.limon@linux.intel.com>
-Date: Thu, 26 May 2016 15:34:45 -0500
-Subject: [PATCH] Upstream-Status: Inappropriate [configuration]
+From 498078cae67e113f7ec4677ce0dd5ef839b41161 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?An=C3=ADbal=20Lim=C3=B3n?= <anibal.limon@linaro.org>
+Date: Fri, 28 Dec 2018 18:09:09 -0600
+Subject: [PATCH] CMakeLists.txt: No CURL
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Signed-off-by: Aníbal Limón <anibal.limon@linux.intel.com>
----
- configure.ac     | 7 -------
- methods/makefile | 7 -------
- 2 files changed, 14 deletions(-)
+Upstream-Status: Inappropriate [configuration]
 
-diff --git a/configure.ac b/configure.ac
-index e47f459..cd24264 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -83,13 +83,6 @@ AC_CHECK_HEADER(db.h,
+Signed-off-by: Aníbal Limón <anibal.limon@linaro.org>
+---
+ CMakeLists.txt | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 226724ba9..26e714fa4 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -73,12 +73,6 @@ if (BERKELEY_DB_FOUND)
+ endif()
  
- LIBS="$saveLIBS"
  
--AC_CHECK_LIB(curl, curl_easy_init,
--     [AC_CHECK_HEADER(curl/curl.h,
--        curl_ok=yes,
--        curl_ok=no)],
--     AC_MSG_ERROR([failed: I need CURL due https support]),
--)
+-# apt-transport-https dependencies
+-find_package(CURL REQUIRED)
+-if (CURL_FOUND)
+-  set(HAVE_CURL 1)
+-endif()
 -
- AC_SUBST(BDBLIB)
- 
- HAVE_ZLIB=no
-diff --git a/methods/makefile b/methods/makefile
-index 3274e92..255086b 100644
---- a/methods/makefile
-+++ b/methods/makefile
-@@ -51,13 +51,6 @@ LIB_MAKES = apt-pkg/makefile
- SOURCE = http.cc http_main.cc rfc2553emu.cc connect.cc server.cc
- include $(PROGRAM_H)
- 
--# The https method
--PROGRAM=https
--SLIBS = -lapt-pkg -lcurl $(INTLLIBS) -lresolv
--LIB_MAKES = apt-pkg/makefile
--SOURCE = https.cc server.cc
--include $(PROGRAM_H)
--
- # The ftp method
- PROGRAM=ftp
- SLIBS = -lapt-pkg $(SOCKETLIBS) $(INTLLIBS) -lresolv
+ # (De)Compressor libraries
+ find_package(ZLIB REQUIRED)
+ if (ZLIB_FOUND)
 -- 
-2.1.4
+2.19.2
 

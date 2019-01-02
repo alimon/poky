@@ -1,0 +1,29 @@
+From 2ee2f40ccf76ccba72b2888551d86d1f734d0f27 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?An=C3=ADbal=20Lim=C3=B3n?= <anibal.limon@linaro.org>
+Date: Fri, 28 Dec 2018 18:42:33 -0600
+Subject: [PATCH] CMakeLists.txt: No NLS
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Aníbal Limón <anibal.limon@linaro.org>
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 96b18cb47..fa1933307 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.4.0)
+ include_directories(${PROJECT_BINARY_DIR}/include)
+ 
+ option(WITH_DOC "Build documentation." OFF)
+-option(USE_NLS "Localisation support." ON)
++option(USE_NLS "Localisation support." OFF)
+ 
+ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
+ 
+-- 
+2.19.2
+

@@ -1,15 +1,32 @@
-Upstream-Status: Pending
+From c1445844def0ae6c72e6087552b8761d0f72d6a3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?An=C3=ADbal=20Lim=C3=B3n?= <anibal.limon@linaro.org>
+Date: Fri, 28 Dec 2018 17:31:03 -0600
+Subject: [PATCH] CMakeLists.txt: Use host_alias env instead of
+ dpkg-architecture
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Index: apt-0.9.7.7/configure.ac
-===================================================================
---- apt-0.9.7.7.orig/configure.ac
-+++ apt-0.9.7.7/configure.ac
-@@ -112,7 +112,7 @@ dnl This is often the dpkg architecture
- dnl First check against the full canonical canoncial-system-type in $target
- dnl and if that fails, just look for the cpu
- AC_MSG_CHECKING(debian architecture)
--archset="`dpkg-architecture -qDEB_HOST_ARCH`"
-+archset="`echo $host_alias|cut -d'-' -f1`"
- if test "x$archset" = "x"; then
-    AC_MSG_ERROR([failed: use --host= or output from dpkg-architecture])
- fi
+Signed-off-by: Aníbal Limón <anibal.limon@linaro.org>
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 7ad363676..916fdfd9a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -181,7 +181,7 @@ if (NOT DEFINED DPKG_DATADIR)
+   set(DPKG_DATADIR "${DPKG_DATADIR_CMD}" CACHE PATH "dpkg data directory")
+ endif()
+ if (NOT DEFINED COMMON_ARCH)
+-  execute_process(COMMAND dpkg-architecture -qDEB_HOST_ARCH
++  execute_process(COMMAND echo $host_alias|cut -d'-' -f1
+                   OUTPUT_VARIABLE COMMON_ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
+ endif()
+ if (NOT DEFINED ROOT_GROUP)
+-- 
+2.19.2
+

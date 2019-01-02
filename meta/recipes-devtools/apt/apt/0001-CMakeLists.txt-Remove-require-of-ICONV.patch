@@ -1,0 +1,30 @@
+From c8fb7b89bdeffdb633078c7b7e6d79c8f572f237 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?An=C3=ADbal=20Lim=C3=B3n?= <anibal.limon@linaro.org>
+Date: Fri, 28 Dec 2018 18:34:36 -0600
+Subject: [PATCH] CMakeLists.txt: Remove require of ICONV
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Upstream-status: Inappropriate
+
+Signed-off-by: Aníbal Limón <anibal.limon@linaro.org>
+---
+ CMakeLists.txt | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 26e714fa4..96b18cb47 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -31,7 +31,6 @@ include(GNUInstallDirs)
+ include(TestBigEndian)
+ find_package(Threads)
+ find_package(LFS REQUIRED)
+-find_package(Iconv REQUIRED)
+ 
+ find_package(Perl REQUIRED)
+ 
+-- 
+2.19.2
+

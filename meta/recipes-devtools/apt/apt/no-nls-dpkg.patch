@@ -1,28 +1,43 @@
-Upstream-Status: Pending
+From f79b83fb58d527ee156122a35c3b1feded310539 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?An=C3=ADbal=20Lim=C3=B3n?= <anibal.limon@linaro.org>
+Date: Fri, 28 Dec 2018 17:36:22 -0600
+Subject: [PATCH] Upstream-Status: Pending
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Index: apt-1.2.24/apt-pkg/deb/dpkgpm.cc
-===================================================================
---- apt-1.2.24.orig/apt-pkg/deb/dpkgpm.cc
-+++ apt-1.2.24/apt-pkg/deb/dpkgpm.cc
-@@ -54,6 +54,12 @@
- #include <apti18n.h>
- 									/*}}}*/
+Signed-off-by: Aníbal Limón <anibal.limon@linaro.org>
+---
+ apt-pkg/deb/dpkgpm.cc | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/apt-pkg/deb/dpkgpm.cc b/apt-pkg/deb/dpkgpm.cc
+index 80bee03dd..0778f217a 100644
+--- a/apt-pkg/deb/dpkgpm.cc
++++ b/apt-pkg/deb/dpkgpm.cc
+@@ -59,7 +59,12 @@
+ #include <numeric>
  
+ #include <apti18n.h>
+-									/*}}}*/
++
 +#ifdef USE_NLS
 +#define _dpkg(x) dgettext("dpkg", x)
 +#else
 +#define _dpkg(x) x
 +#endif
-+
- using namespace std;
  
- APT_PURE static string
-@@ -1703,7 +1709,7 @@ void pkgDPkgPM::WriteApportReport(const
+ extern char **environ;
+ 
+@@ -2210,7 +2215,7 @@ void pkgDPkgPM::WriteApportReport(const char *pkgpath, const char *errormsg)
     }
  
-    // check if its not a follow up error 
+    // check if its not a follow up error
 -   const char *needle = dgettext("dpkg", "dependency problems - leaving unconfigured");
-+   const char *needle = _dpkg("dependency problems - leaving unconfigured");
++   const char *needle = _dpkg("dpkg", "dependency problems - leaving unconfigured");
     if(strstr(errormsg, needle) != NULL) {
        std::clog << _("No apport report written because the error message indicates its a followup error from a previous failure.") << std::endl;
        return;
+-- 
+2.19.2
+
