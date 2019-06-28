@@ -1006,64 +1006,88 @@ class BaseConfig(object):
             except FileExistsError:
                 pass
 
-        cmd = (ip, 'link')
-        logger.debug('Running %s...' % str(cmd))
-        ip_link = subprocess.check_output(cmd).decode('utf-8')
-        # Matches line like: 6: tap0: <foo>
-        possibles = re.findall('^[0-9]+: +(tap[0-9]+): <.*', ip_link, re.M)
-        tap = ""
-        for p in possibles:
-            lockfile = os.path.join(lockdir, p)
-            if os.path.exists('%s.skip' % lockfile):
-                logger.info('Found %s.skip, skipping %s' % (lockfile, p))
-                continue
-            lock = lockfile + '.lock'
-            if self.acquire_lock(lock, error=False):
-                tap = p
-                logger.info("Using preconfigured tap device %s" % tap)
-                logger.info("If this is not intended, touch %s.skip to make runqemu skip %s." %(lockfile, tap))
-                break
-
-        if not tap:
-            if os.path.exists(nosudo_flag):
-                logger.error("Error: There are no available tap devices to use for networking,")
-                logger.error("and I see %s exists, so I am not going to try creating" % nosudo_flag)
-                raise RunQemuError("a new one with sudo.")
-
-            gid = os.getgid()
-            uid = os.getuid()
-            logger.info("Setting up tap interface under sudo")
-            cmd = ('sudo', self.qemuifup, str(uid), str(gid), self.bindir_native)
-            tap = subprocess.check_output(cmd).decode('utf-8').strip()
-            lockfile = os.path.join(lockdir, tap)
-            lock = lockfile + '.lock'
-            self.acquire_lock(lock)
-            self.cleantap = True
-            logger.debug('Created tap: %s' % tap)
-
-        if not tap:
-            logger.error("Failed to setup tap device. Run runqemu-gen-tapdevs to manually create.")
-            return 1
-        self.tap = tap
-        tapnum = int(tap[3:])
-        gateway = tapnum * 2 + 1
-        client = gateway + 1
-        if self.fstype == 'nfs':
-            self.setup_nfs()
-        netconf = "192.168.7.%s::192.168.7.%s:255.255.255.0" % (client, gateway)
-        logger.info("Network configuration: %s", netconf)
-        self.kernel_cmdline_script += " ip=%s" % netconf
-        mac = "%s%02x" % (self.mac_tap, client)
-        qb_tap_opt = self.get('QB_TAP_OPT')
-        if qb_tap_opt:
-            qemu_tap_opt = qb_tap_opt.replace('@TAP@', tap)
-        else:
-            qemu_tap_opt = "-netdev tap,id=net0,ifname=%s,script=no,downscript=no" % (self.tap)
+        self.taps = []
+        qemu_tap_opt = self.get('QB_TAP_OPT')
+        if not qemu_tap_opt:
+            qemu_tap_opt = '-netdev tap,id=net0,ifname=@TAP@,script=no,downscript=no'
 
         if self.vhost_enabled:
-            qemu_tap_opt += ',vhost=on'
+            opts = []
+            for tap_opt in qemu_tap_opt.split():
+                if 'tap' in tap_opt:
+                    tap_opt += ',vhost=on'
+                    opts.append(tap_opt)
+                else:
+                    opts.append(tap_opt)
+            qemu_tap_opt = ' '.join(opts)
 
-        self.set('NETWORK_CMD', '%s %s' % (self.network_device.replace('@MAC@', mac), qemu_tap_opt))
+        tap_no = qemu_tap_opt.count('@TAP@')
+        for tap_idx in range(tap_no):
+            cmd = (ip, 'link')
+            logger.debug('Running %s...' % str(cmd))
+            ip_link = subprocess.check_output(cmd).decode('utf-8')
+            # Matches line like: 6: tap0: <foo>
+            possibles = re.findall('^[0-9]+: +(tap[0-9]+): <.*', ip_link, re.M)
+            tap = ""
+            for p in possibles:
+                if p in self.taps:
+                    continue
+
+                lockfile = os.path.join(lockdir, p)
+                if os.path.exists('%s.skip' % lockfile):
+                    logger.info('Found %s.skip, skipping %s' % (lockfile, p))
+                    continue
+                lock = lockfile + '.lock'
+                if self.acquire_lock(lock, error=False):
+                    tap = p
+                    logger.info("Using preconfigured tap device %s" % tap)
+                    logger.info("If this is not intended, touch %s.skip to make runqemu skip %s." %(lockfile, tap))
+                    break
+
+            if not tap:
+                if os.path.exists(nosudo_flag):
+                    logger.error("Error: There are no available tap devices to use for networking,")
+                    logger.error("and I see %s exists, so I am not going to try creating" % nosudo_flag)
+                    raise RunQemuError("a new one with sudo.")
+
+                gid = os.getgid()
+                uid = os.getuid()
+                logger.info("Setting up tap interface under sudo")
+                cmd = ('sudo', self.qemuifup, str(uid), str(gid), self.bindir_native)
+                tap = subprocess.check_output(cmd).decode('utf-8').strip()
+                lockfile = os.path.join(lockdir, tap)
+                lock = lockfile + '.lock'
+                self.acquire_lock(lock)
+                self.cleantap = True
+                logger.info('Created tap: %s' % tap)
+
+            if not tap:
+                logger.error("Failed to setup tap device. Run runqemu-gen-tapdevs to manually create.")
+                return 1
+            self.taps.append(tap)
+            tapnum = int(tap[3:])
+            gateway = tapnum * 2 + 1
+            client = gateway + 1
+
+            # XXX: Linux qemuarm and qemuppc dosen't configure the interface 
+            # if device is specified in ip (ethN), so if only one tap device is
+            # requested don't specify ethN.
+            if tap_no == 1:
+                netconf = "192.168.7.%s::192.168.7.%s:255.255.255.0" % (client, gateway)
+                logger.info("Network configuration: %s", netconf)
+                self.kernel_cmdline_script += " ip=%s" % netconf
+            elif tap_idx == 0:
+                netconf = "192.168.7.%s::192.168.7.%s:255.255.255.0::eth%d" % (client, gateway, tap_idx)
+                logger.info("Network configuration: %s", netconf)
+                self.kernel_cmdline_script += " ip=%s" % netconf
+
+            mac = "%s%02x" % (self.mac_tap, client)
+            qemu_tap_opt = qemu_tap_opt.replace('@TAP@', tap, 1)
+            self.network_device = self.network_device.replace('@MAC@', mac, 1)
+
+        self.set('NETWORK_CMD', '%s %s' % (self.network_device, qemu_tap_opt))
+        if self.fstype == 'nfs':
+            self.setup_nfs()
 
     def setup_network(self):
         if self.get('QB_NET') == 'none':
@@ -1289,9 +1313,10 @@ class BaseConfig(object):
 
         logger.info("Cleaning up")
         if self.cleantap:
-            cmd = ('sudo', self.qemuifdown, self.tap, self.bindir_native)
-            logger.debug('Running %s' % str(cmd))
-            subprocess.check_call(cmd)
+            for tap in self.taps:
+                cmd = ('sudo', self.qemuifdown, tap, self.bindir_native)
+                logger.debug('Running %s' % str(cmd))
+                subprocess.check_call(cmd)
         for lock in self.lock_descriptors.keys():
             self.release_lock(lock)
 
